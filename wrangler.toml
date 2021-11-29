@@ -16,3 +16,10 @@ command = "npm run build"
 # command = "npm install && npm run build"
 [build.upload]
 format = "service-worker"
+
+# Secrets , Need to be directly set in CF dashboard
+# [secrets]
+# ROOTFOLDERID
+# TEAMDRIVEID
+# GAPIKEY
+# GAPIREFERER
