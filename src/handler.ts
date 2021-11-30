@@ -15,19 +15,29 @@ export async function handleRequest(request: Request): Promise<Response> {
       )
     }
 
-    // Split path by '/'
-    const drivePath = reqURL.pathname.split("/")
-    // Drop 1st element as it is always empty
-    drivePath.shift()
+    // Check KV for resolved driveID
+    let driveFileID = await driveFileIDKV.get(reqURL.pathname)
 
-    // Url Decode each element
-    const drivePathDecoded = drivePath.map((path) => decodeURIComponent(path))
-    // console.log(drivePathDecoded)
+    // If not found in KV, find driveID by name
+    if (driveFileID === null) {
+      // console.log("Not Found in KV")
+      // Split path by '/'
+      const drivePath = reqURL.pathname.split("/")
+      // Drop 1st element as it is always empty
+      drivePath.shift()
 
-    // Find item in drive recursively
-    let driveFileID = ROOTFOLDERID
-    for (const drivePathName of drivePathDecoded) {
-      driveFileID = await driveFindByName(driveFileID, drivePathName)
+      // Url Decode each element
+      const drivePathDecoded = drivePath.map((path) => decodeURIComponent(path))
+      // console.log(drivePathDecoded)
+
+      // Find item in drive recursively
+      driveFileID = ROOTFOLDERID
+      for (const drivePathName of drivePathDecoded) {
+        driveFileID = await driveFindByName(driveFileID, drivePathName)
+      }
+
+      // Store driveID in KV
+      await driveFileIDKV.put(reqURL.pathname, driveFileID)
     }
 
     // Get drive file stream

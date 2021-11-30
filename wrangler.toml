@@ -11,6 +11,13 @@ workers_dev = true
 compatibility_date = "2021-11-28"
 # compatibility_flags = []
 
+# KV Store
+# Replace the following id , preview_id with your own KV Store
+# Below placeholder values wont be replaced by wranger and need to set manually
+kv_namespaces = [
+    { binding = "driveFileIDKV", id = "${{DRIVEFILEIDKV_ID}}", preview_id = "${{DRIVEFILEIDKV_PREVIEW_ID}}" },
+]
+
 [build]
 command = "npm run build"
 # command = "npm install && npm run build"

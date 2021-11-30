@@ -5,4 +5,5 @@ declare global {
   const GAPIREFERER: string
   const ROOTFOLDERID: string
   const TEAMDRIVEID: string
+  const driveFileIDKV: KVNamespace
 }
