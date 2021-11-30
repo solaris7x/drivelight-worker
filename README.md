@@ -1,5 +1,10 @@
 # DriveLight Worker
 
+## ENV
+
+    Rename sample.wrangler.toml to wrangler.toml
+    Replace placeholders (KV-bindings & Secrets) in wrangler.toml
+
 ## TODO
 
 - File cache control
