@@ -27,6 +27,12 @@ const appendContentHeaders = (
   if (DriveFileContentLength) {
     responseHeaders.append("Content-Length", DriveFileContentLength)
   }
+
+  // Content-Range
+  const DriveFileContentRange = driveFile.headers.get("Content-Range")
+  if (DriveFileContentRange) {
+    responseHeaders.append("Content-Range", DriveFileContentRange)
+  }
 }
 
 export default appendContentHeaders

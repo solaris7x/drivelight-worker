@@ -1,9 +1,13 @@
+import driveFileRequest from "./components/driveFileRequest"
 import driveFindByName from "./components/driveFindByName"
-import appendContentHeaders from "./components/appendContentHeaders"
 
 export async function handleRequest(event: FetchEvent): Promise<Response> {
   try {
     const request = event.request
+
+    // Check for Range header
+    const range = request.headers.get("Range")
+
     // Get params
     const reqURL = new URL(request.url)
 
@@ -16,6 +20,7 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
     // if not, you will need to fetch it from origin, and store it in the cache for future access
     const cacheResponse = await cache.match(cacheKey)
 
+    // Automatically handles range requests and returns a 206 Partial Content response
     if (cacheResponse) {
       console.log("Found in cache")
       // Return the cached response
@@ -62,49 +67,25 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       await driveFileIDKV.put(reqURL.pathname, driveFileID)
     }
 
-    // Get drive file stream
-    const requestURI = `https://www.googleapis.com/drive/v3/files/${driveFileID}?key=${GAPIKEY}&supportsAllDrives=true&alt=media`
-    // console.log(requestURI)
-    const driveFile = await fetch(requestURI, {
-      headers: {
-        Referer: GAPIREFERER,
-      },
-    })
-
-    // Return if drive response is not ok or null
-    if (!driveFile.ok || driveFile.body === null) {
-      return new Response(
-        JSON.stringify({
-          msg: "Failed to fetch file",
-          statusText: driveFile.statusText,
-          error: await driveFile.text(),
-        }),
-        {
-          status: driveFile.status,
-          statusText: driveFile.statusText,
-        }
-      )
-    }
-
-    // Response Headers
-    const responseHeaders = new Headers()
-
-    // Append Content Headers to given header object
-    appendContentHeaders(driveFile, responseHeaders)
-
-    // Append Cache Headers
-    responseHeaders.append("Cache-Control", "max-age=" + CACHEMAXAGE.toString())
-
-    // Create response
-    const response = new Response(driveFile.body, {
-      status: 200,
-      headers: responseHeaders,
-    })
+    const response = await driveFileRequest(driveFileID, range)
 
     // Store the fetched response as cacheKey
     // Use waitUntil so you can return the response without blocking on writing to cache
     console.log("Storing in cache")
-    event.waitUntil(cache.put(cacheKey, response.clone()))
+    // If range request, make another request to get the full response
+    if (range !== null) {
+      // Make another request to get the full response
+      const responseFull = await driveFileRequest(driveFileID)
+
+      // Store the full response in the cache
+      // No need to clone the response as it is only used to populate cache
+      event.waitUntil(cache.put(cacheKey, responseFull))
+    } else {
+      // Store original response in the cache
+      event.waitUntil(cache.put(cacheKey, response.clone()))
+    }
+
+    console.log("End of request")
 
     // Return response
     return response
