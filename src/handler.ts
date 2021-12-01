@@ -42,16 +42,17 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       )
     }
 
+    // Trimmed reqest Path
+    const reqPathTrimmed = reqURL.pathname.replace(/^\/+|\/+$/g, "")
+
     // Check KV for resolved driveID
-    let driveFileID = await driveFileIDKV.get(reqURL.pathname)
+    let driveFileID = await driveFileIDKV.get(reqPathTrimmed)
 
     // If not found in KV, find driveID by name
     if (driveFileID === null) {
       // console.log("Not Found in KV")
       // Split path by '/'
-      const drivePath = reqURL.pathname.split("/")
-      // Drop 1st element as it is always empty
-      drivePath.shift()
+      const drivePath = reqPathTrimmed.split("/")
 
       // Url Decode each element
       const drivePathDecoded = drivePath.map((path) => decodeURIComponent(path))
@@ -64,7 +65,7 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       }
 
       // Store driveID in KV
-      await driveFileIDKV.put(reqURL.pathname, driveFileID)
+      await driveFileIDKV.put(reqPathTrimmed, driveFileID)
     }
 
     const response = await driveFileRequest(driveFileID, range)
