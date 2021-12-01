@@ -7,9 +7,9 @@
 
 ## TODO
 
-- File cache control
 - File range header support
 - Handle Folders
+- Content-Disposition Filename
 
 ## FIXME
 

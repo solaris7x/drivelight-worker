@@ -4,17 +4,11 @@ type = "javascript"
 # type = "webpack" 
 # webpack_config = "webpack.config.js"
 
-route = ''
+account_id = ''
 zone_id = ''
-workers_dev = true
 # usage_model = ''
 compatibility_date = "2021-11-28"
 # compatibility_flags = []
-
-# KV Store
-# Replace the following id , preview_id with your own KV Store
-# Below placeholder values wont be replaced by wranger and need to set manually 
-kv_namespaces = [{ binding = "driveFileIDKV", id = "", preview_id = "" }]
 
 [build]
 command = "npm run build"
@@ -22,9 +16,24 @@ command = "npm run build"
 [build.upload]
 format = "service-worker"
 
-# Secrets , Need to be directly set in CF dashboard or with wrangler secret put <NAME>
+# ENV VARIABLES, will be accessible in the worker
+# These are unencrypted and will be visible on git commits
+# Not inherited , need to be set indivisually for each environment
+# [vars]
+# CACHEMAXAGE = "3600"
+
+# Secrets , Need to be directly set in CF dashboard
 # [secrets]
 # ROOTFOLDERID
 # TEAMDRIVEID
 # GAPIKEY
 # GAPIREFERER
+
+# Environments
+[env.workerdev]
+workers_dev = true
+# KV Store
+# Replace the following id , preview_id with your own KV Store
+# Below placeholder values wont be replaced by wranger and need to set manually 
+kv_namespaces = [{ binding = "driveFileIDKV", id = "", preview_id = "" }]
+vars = { CACHEMAXAGE = "3600" }
