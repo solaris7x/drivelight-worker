@@ -36,4 +36,4 @@ workers_dev = true
 # Replace the following id , preview_id with your own KV Store
 # Below placeholder values wont be replaced by wranger and need to set manually 
 kv_namespaces = [{ binding = "driveFileIDKV", id = "", preview_id = "" }]
-vars = { CACHEMAXAGE = "3600" }
+vars = { CACHEMAXAGE = "3600", CACHEMAXSIZE = "512000000" }

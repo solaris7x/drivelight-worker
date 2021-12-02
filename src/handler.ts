@@ -128,8 +128,11 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
 
     const response = await driveFileRequest(driveFile.id, range)
 
-    // Skip cache if already present
-    if (!cacheResponse) {
+    // Skip cache if already present or content-length is bigger than CACHEMAXSIZE
+    const responseSize = parseInt(
+      response.headers.get("content-length") || "-1"
+    )
+    if (!cacheResponse && responseSize !== -1 && responseSize < CACHEMAXSIZE) {
       // Store the fetched response as cacheKey
       // Use waitUntil so you can return the response without blocking on writing to cache
       console.log("Storing in cache")
