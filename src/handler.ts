@@ -25,9 +25,17 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
 
     // Automatically handles range requests and returns a 206 Partial Content response
     if (cacheResponse) {
-      console.log("Found in cache")
-      // Return the cached response
-      return cacheResponse
+      // Return only if cache respected range request
+      if (
+        cacheKey.headers.has("Range") ===
+        cacheResponse.headers.has("Content-Range")
+      ) {
+        // Return the cached response
+        console.log("Found in cache")
+        // console.log(cacheKey.headers.get("Range"))
+        // console.log(cacheResponse.headers.get("Content-Range"))
+        return cacheResponse
+      }
     }
 
     // Return greeting if no path specified
@@ -119,20 +127,23 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
 
     const response = await driveFileRequest(driveFile.id, range)
 
-    // Store the fetched response as cacheKey
-    // Use waitUntil so you can return the response without blocking on writing to cache
-    console.log("Storing in cache")
-    // If range request, make another request to get the full response
-    if (range !== null) {
-      // Make another request to get the full response
-      const responseFull = await driveFileRequest(driveFile.id)
+    // Skip cache if already present
+    if (!cacheResponse) {
+      // Store the fetched response as cacheKey
+      // Use waitUntil so you can return the response without blocking on writing to cache
+      console.log("Storing in cache")
+      // If range request, make another request to get the full response
+      if (range !== null) {
+        // Make another request to get the full response
+        const responseFull = await driveFileRequest(driveFile.id)
 
-      // Store the full response in the cache
-      // No need to clone the response as it is only used to populate cache
-      event.waitUntil(cache.put(cacheKey, responseFull))
-    } else {
-      // Store original response in the cache
-      event.waitUntil(cache.put(cacheKey, response.clone()))
+        // Store the full response in the cache
+        // No need to clone the response as it is only used to populate cache
+        event.waitUntil(cache.put(cacheKey, responseFull))
+      } else {
+        // Store original response in the cache
+        event.waitUntil(cache.put(cacheKey, response.clone()))
+      }
     }
 
     console.log("End of request")
