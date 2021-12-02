@@ -107,10 +107,14 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       }
 
       // Return folder template
-      return new Response(folderTemplate(driveFile.name, folderContent), {
-        status: 200,
-        headers: { "content-type": "text/html" },
-      })
+      console.log(reqURL.host + reqURL.pathname)
+      return new Response(
+        folderTemplate(driveFile.name, folderContent, reqURL.pathname),
+        {
+          status: 200,
+          headers: { "content-type": "text/html" },
+        }
+      )
     }
 
     const response = await driveFileRequest(driveFile.id, range)
@@ -137,12 +141,12 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
     return response
 
     // return new Response(`request method: ${request.method}`)
-  } catch (error) {
-    // console.log(error)
+  } catch (err) {
+    console.log(err)
     return new Response(
       JSON.stringify({
         msg: "oof, Something broke",
-        error: (error as Error)?.message || error,
+        error: (err as Error)?.message || err,
       }),
       {
         status: 500,

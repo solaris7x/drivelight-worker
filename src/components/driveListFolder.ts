@@ -14,7 +14,7 @@ const driveListFolder = async (query: string, pageSize?: number | string) => {
   // Convert Params to Query String
   const paramsString = new URLSearchParams(params).toString()
   const requestURI = `https://www.googleapis.com/drive/v3/files?key=${GAPIKEY}&${paramsString}`
-  console.log(requestURI)
+  // console.log(requestURI)
 
   // Fetch Drive file details
   const driveFileRes = await fetch(requestURI, {

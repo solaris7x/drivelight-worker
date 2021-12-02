@@ -1,4 +1,12 @@
-const folderTemplate = (folderName: string, files: { name: string }[]) => `
+const folderTemplate = (
+  folderName: string,
+  files: { name: string }[],
+  currentPath: string
+) => {
+  // Check if currentPath ends with "/"
+  const pathEndsWithSlash = currentPath.endsWith("/")
+
+  return `
 <!DOCTYPE html>
 <html>
   <head>
@@ -15,14 +23,17 @@ const folderTemplate = (folderName: string, files: { name: string }[]) => `
         ${files
           .map(
             (file) =>
-              `<li><a href="${encodeURIComponent(file.name)}">${
-                file.name
-              }</a></li>`
+              `<li><a href="${
+                currentPath +
+                (pathEndsWithSlash ? "" : "/") +
+                encodeURIComponent(file.name)
+              }">${file.name}</a></li>`
           )
           .join("")}
     </ul>
   </body>
 </html>
 `
+}
 
 export default folderTemplate
