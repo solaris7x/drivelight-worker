@@ -7,8 +7,8 @@
 
 ## TODO
 
-- Handle Folders
 - Content-Disposition Filename
+- Resolve Shortcuts
 
 ## FIXME
 
