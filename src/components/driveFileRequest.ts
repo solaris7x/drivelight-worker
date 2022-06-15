@@ -23,7 +23,8 @@ const driveFileRequest = async (driveFileID: string, range?: string | null) => {
       JSON.stringify({
         msg: "Failed to fetch file",
         statusText: driveFile.statusText,
-        error: ((await driveFile.json()) as any)?.error?.message,
+        // error: ((await driveFile.json()) as any)?.error?.message,
+        error: await driveFile.text(),
       }),
       {
         status: driveFile.status,

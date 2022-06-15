@@ -23,6 +23,8 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
     // if not, you will need to fetch it from origin, and store it in the cache for future access
     const cacheResponse = await cache.match(cacheKey)
 
+    // console.log(cacheResponse)
+
     // Automatically handles range requests and returns a 206 Partial Content response
     if (cacheResponse) {
       // Return only if cache respected range request
@@ -57,6 +59,8 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
     // Trimmed reqest Path
     const reqPathTrimmed = reqURL.pathname.replace(/^\/+|\/+$/g, "")
 
+    // console.log(reqPathTrimmed)
+
     // Check KV for resolved driveID
     // Temporary store KV value
     const driveFileTemp = await driveFileIDKV.get(reqPathTrimmed, "json")
@@ -70,9 +74,11 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       ? driveFileTemp
       : null
 
+    // console.log(driveFile)
+
     // If not found in KV, find driveID by name
     if (!driveFile) {
-      // console.log("Not Found in KV")
+      console.log("Not Found in KV")
       // Split path by '/'
       const drivePath = reqPathTrimmed.split("/")
 
@@ -80,9 +86,11 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       const drivePathDecoded = drivePath.map((path) => decodeURIComponent(path))
       // console.log(drivePathDecoded)
 
+      console.log("Finding DriveID by name")
       // Find item in drive recursively
       let driveFileID = ROOTFOLDERID
       for (const drivePathName of drivePathDecoded) {
+        console.log(drivePathName)
         driveFile = await driveFindByName(driveFileID, drivePathName)
         driveFileID = driveFile.id
       }
@@ -126,6 +134,7 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
       )
     }
 
+    console.log("Requesting file")
     const response = await driveFileRequest(driveFile.id, range)
 
     // Skip cache if already present or content-length is bigger than CACHEMAXSIZE
@@ -157,7 +166,7 @@ export async function handleRequest(event: FetchEvent): Promise<Response> {
 
     // return new Response(`request method: ${request.method}`)
   } catch (err) {
-    console.log(err)
+    console.log((err as any)?.stack)
     return new Response(
       JSON.stringify({
         msg: "oof, Something broke",
